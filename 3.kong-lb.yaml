@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kong-lb
+  namespace: ingress
+spec:
+  replicas: 2
+  selector:
+    name: kong-lb
+  template:
+    metadata:
+      labels:
+        name: kong-lb
+    spec:
+      containers:
+      - name: kong-lb
+        image: repo.hcdd.kr/kong/kong:1.0.3
+        #imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        - containerPort: 8443
+        - containerPort: 8001
+        env:
+        #> https://docs.konghq.com/1.0.x/configuration/
+        - name: KONG_PG_HOST
+          value: "kong-database"
+        - name: KONG_PROXY_LISTEN
+          value: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8001"
+        - name: KONG_PROXY_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PROXY_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_ERROR_LOG
+          value: "/dev/stderr"
+        #> Strip Headers
+        #- name: KONG_HEADERS
+        #  value: "off"
+        - name: KONG_LOG_LEVEL
+          value: "debug"
+        #> Do not report anonymous statics to konghq
+        - name: KONG_ANONYMOUS_REPORTS
+          value: "off"
+        #> DB update interval (sec. default: 5)
+        - name: KONG_DB_UPDATE_FREQUENCY
+          value: "2"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-lb
+  namespace: ingress
+  labels:
+    name: kong-lb
+spec:
+  type: LoadBalancer
+  selector:
+    name: kong-lb
+  externalIPs:
+  # Set External IP
+  - 10.1.2.71
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: 8443
+    name: kong-https
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+    name: kong-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-mgmt
+  namespace: ingress
+  labels:
+    name: kong-mgmt
+spec:
+  type: LoadBalancer
+  selector:
+    name: kong-lb
+  ports:
+  - protocol: TCP
+    port: 8001
+    targetPort: 8001
+    name: kong-mgmt-http

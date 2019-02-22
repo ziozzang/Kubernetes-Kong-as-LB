@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: kong-lb
-        image: repo.hcdd.kr/kong/kong:1.0.3
+        image: kong/kong:1.0.3
         #imagePullPolicy: Always
         ports:
         - containerPort: 8000

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: konga-lb
-        image: repo.hcdd.kr/kong/pantsel/konga:0.14.1
+        image: pantsel/konga:0.14.1
         #imagePullPolicy: Always
         env:
         - name: NODE_ENV
@@ -27,8 +27,8 @@ spec:
       volumes:
       - name: vl-konga-data
         hostPath:
-          path: /NAS/k8s-storages-ext/svc/konga-data/
-          type: Directory
+          path: /opt/shared/konga-data/
+          type: DirectoryOrCreate
 
 ---
 apiVersion: v1

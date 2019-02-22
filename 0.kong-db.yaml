@@ -39,8 +39,8 @@ spec:
       volumes:
       - name: vl-kong-backend-data
         hostPath:
-          path: /NAS/k8s-storages-ext/svc/kong-database
-          type: Directory
+          path: /opt/kong-database
+          type: DirectoryOrCreate
 
 
 ---

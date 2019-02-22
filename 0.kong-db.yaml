@@ -39,7 +39,7 @@ spec:
       volumes:
       - name: vl-kong-backend-data
         hostPath:
-          path: /opt/kong-database
+          path: /opt/shared/kong-database
           type: DirectoryOrCreate
 
 

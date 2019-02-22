@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: ingress
+  name: kong-setup
+spec:
+  template:
+    spec:
+      containers:
+      - name: kong-setup
+        image: repo.hcdd.kr/kong/kong:1.0.3
+        env:
+        - name: KONG_PG_HOST
+          value: "kong-database"
+        command: ["kong","migrations","bootstrap"]
+      restartPolicy: Never
+  activeDeadlineSeconds: 10
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 4
+  

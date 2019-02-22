@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kong-database
+  namespace: ingress
+spec:
+  replicas: 1
+  selector:
+    name: kong-database
+  template:
+    metadata:
+      labels:
+        name: kong-database
+    spec:
+      containers:
+      - name: kong-database
+        image: repo.hcdd.kr/library/postgres:9.6
+        #imagePullPolicy: Always
+        env:
+        - name: POSTGRES_USER
+          value: "kong"
+        - name: POSTGRES_DB
+          value: "kong"
+        volumeMounts:
+        - name: vl-kong-backend-data
+          mountPath: "/var/lib/postgresql/data"
+        ports:
+        - containerPort: 5432
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: vl-kong-backend-data
+        hostPath:
+          path: /NAS/k8s-storages-ext/svc/kong-database
+          type: Directory
+
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kong-database
+  namespace: ingress
+  labels:
+    name: kong-database
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    name: kong-database

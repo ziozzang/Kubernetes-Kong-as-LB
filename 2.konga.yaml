@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: konga-lb
+  namespace: ingress
+spec:
+  replicas: 1
+  selector:
+    name: konga-lb
+  template:
+    metadata:
+      labels:
+        name: konga-lb
+    spec:
+      containers:
+      - name: konga-lb
+        image: repo.hcdd.kr/kong/pantsel/konga:0.14.1
+        #imagePullPolicy: Always
+        env:
+        - name: NODE_ENV
+          value: "production"
+        volumeMounts:
+        - name: vl-konga-data
+          mountPath: "/app/kongadata"
+        ports:
+        - containerPort: 1337
+      volumes:
+      - name: vl-konga-data
+        hostPath:
+          path: /NAS/k8s-storages-ext/svc/konga-data/
+          type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: konga-lb
+  namespace: ingress
+  labels:
+    name: konga-lb
+spec:
+  type: LoadBalancer
+  selector:
+    name: konga-lb
+  externalIPs:
+  # TO-DO: SETUP Konga External IP here.
+  - 10.1.2.71
+  ports:
+  - protocol: TCP
+    port: 1337
+    targetPort: 1337
+    name: konga-http

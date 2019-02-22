@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: kong-setup
-        image: repo.hcdd.kr/kong/kong:1.0.3
+        image: kong/kong:1.0.3
         env:
         - name: KONG_PG_HOST
           value: "kong-database"

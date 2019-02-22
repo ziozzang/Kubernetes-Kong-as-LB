@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: kong-database
-        image: repo.hcdd.kr/library/postgres:9.6
+        image: postgres:9.6
         #imagePullPolicy: Always
         env:
         - name: POSTGRES_USER
